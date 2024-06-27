@@ -1,7 +1,7 @@
 package com.example.mysecondwebapp.material;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -18,12 +18,15 @@ public class MaterialController {
 	private MaterialRepository materialRepository;
 	private RelMaterialCatRepository relMaterialCatRepository;
 	private MaterialCategoryRepository materialCategoryRepository;
+	private MaterialTypeRepository materialTypeRepository;
 	
-	public MaterialController(MaterialRepository materialRepository, RelMaterialCatRepository relMaterialCatRepository, MaterialCategoryRepository materialCategoryRepository) {
+	public MaterialController(MaterialRepository materialRepository, RelMaterialCatRepository relMaterialCatRepository
+			, MaterialCategoryRepository materialCategoryRepository, MaterialTypeRepository materialTypeRepository) {
 		super();
 		this.materialRepository = materialRepository;
 		this.relMaterialCatRepository = relMaterialCatRepository;
 		this.materialCategoryRepository = materialCategoryRepository;
+		this.materialTypeRepository = materialTypeRepository;
 	}
 	
 	@RequestMapping("/material")
@@ -44,6 +47,8 @@ public class MaterialController {
 	
 	@GetMapping("/add-material")
 	public String  showAddMaterialPage(ModelMap model) {
+		List<MaterialType> materialTypes = materialTypeRepository.findAll();
+		model.addAttribute("materialTypes",materialTypes);
 		model.addAttribute("formWrapper",new FormWrapper());
 		return "addMaterial";
 	}
@@ -54,15 +59,19 @@ public class MaterialController {
     // Method 
     public List<String> category() 
     { 
-        List<String> category = Arrays.asList( 
-            "Category1", "Category2", "Category3", 
-            "Category4", "Category5"); 
-  
+    	List<MaterialCategory> all = materialCategoryRepository.findAll();
+        List<String> category = new ArrayList<>();
+        for(MaterialCategory addCategory : all) {
+        	category.add(addCategory.getCategory());
+        	
+        }
         return category; 
     } 
 	
 	@PostMapping("/add-material")
 	public String  addNewMaterialPage(ModelMap model, FormWrapper formWrapper) {
+		
+		
 		Material material = formWrapper.getMaterial();
 		material.setCreatedDate(LocalDate.now());
 		material.setDeleteFlag(true);

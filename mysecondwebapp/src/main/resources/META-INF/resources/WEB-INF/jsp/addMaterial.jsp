@@ -1,5 +1,5 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
-
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <html>
 <head>
 <title>Add New Material</title>
@@ -81,11 +81,16 @@ body {
 				<fieldset>
 					<form:label path="material.typeId">Type</form:label>
 					<form:select path="material.typeId" class="form-select">
-						<form:option value="1">Type 1</form:option>
+						<%-- <form:option value="1">Type 1</form:option>
 						<form:option value="2">Type 2</form:option>
 						<form:option value="3">Type 3</form:option>
 						<form:option value="4">Type 4</form:option>
-						<form:option value="5">Type 5</form:option>
+						<form:option value="5">Type 5</form:option> --%>
+						
+						<c:forEach items = "${materialTypes}" var = "materialType">
+							 <form:option value="${materialType.typeId}">${materialType.type}</form:option>
+						
+						</c:forEach>
 					</form:select>
 				</fieldset>
 				<fieldset>
