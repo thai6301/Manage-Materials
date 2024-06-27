@@ -2,6 +2,8 @@ package com.example.mysecondwebapp.material;
 
 import java.util.List;
 
+import com.example.mysecondwebapp.material.entity.Material;
+
 public class FormWrapper {
 	private Material material;
 	private List<String> selectedCategory;
