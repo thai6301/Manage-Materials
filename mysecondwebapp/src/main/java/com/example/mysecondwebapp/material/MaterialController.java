@@ -17,11 +17,13 @@ public class MaterialController {
 	
 	private MaterialRepository materialRepository;
 	private RelMaterialCatRepository relMaterialCatRepository;
+	private MaterialCategoryRepository materialCategoryRepository;
 	
-	public MaterialController(MaterialRepository materialRepository, RelMaterialCatRepository relMaterialCatRepository) {
+	public MaterialController(MaterialRepository materialRepository, RelMaterialCatRepository relMaterialCatRepository, MaterialCategoryRepository materialCategoryRepository) {
 		super();
 		this.materialRepository = materialRepository;
 		this.relMaterialCatRepository = relMaterialCatRepository;
+		this.materialCategoryRepository = materialCategoryRepository;
 	}
 	
 	@RequestMapping("/material")
@@ -47,16 +49,16 @@ public class MaterialController {
 	}
 	
 	// Annotation 
-    @ModelAttribute("materialCatId") 
+    @ModelAttribute("category") 
   
     // Method 
-    public List<String> materialCatIdList() 
+    public List<String> category() 
     { 
-        List<String> materialCatId = Arrays.asList( 
-            "1", "2", "3", 
-            "4", "5"); 
+        List<String> category = Arrays.asList( 
+            "Category1", "Category2", "Category3", 
+            "Category4", "Category5"); 
   
-        return materialCatId; 
+        return category; 
     } 
 	
 	@PostMapping("/add-material")
@@ -67,13 +69,15 @@ public class MaterialController {
 		materialRepository.save(material);
 		
 		
-		List<String> selectedMaterialCatIds = formWrapper.getSelectedMaterialCatIds();
+		List<String> selectedCategory = formWrapper.getSelectedCategory();
 
 	    // Lưu các materialCatId đã chọn vào cơ sở dữ liệu
-	    for (String materialCatId : selectedMaterialCatIds) {
+	    for (String category : selectedCategory) {
 	        RelMaterialCat relMaterialCat = new RelMaterialCat();
 	        relMaterialCat.setMaterialId(material.getMaterialId());
-	        relMaterialCat.setMaterialCatId(Integer.parseInt(materialCatId)); // Chuyển đổi thành kiểu phù hợp
+	        MaterialCategory materialCategory = new MaterialCategory();
+	        materialCategory = materialCategoryRepository.findByCategory(category);
+	        relMaterialCat.setMaterialCatId(materialCategory.getMaterialCatId()); // Chuyển đổi thành kiểu phù hợp
 	        relMaterialCatRepository.save(relMaterialCat);
 	    }
 	
