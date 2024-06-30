@@ -80,6 +80,8 @@
                 <th>Category</th>
                 <th>Name</th>
                 <th>Author</th>
+                <th></th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -90,6 +92,8 @@
                     <td>${material[2]}</td>
                     <td><a href="/material/detail?id=${material[0]}">${material[3]}</a></td>
                     <td>${material[4]}</td>
+                    <td><a href="delete-material?materialId=${material[0]}&category=${material[2]}" class="btn btn-danger">Delete</a></td>
+                    <td><a href="update-material?materialId=${material[0]}&category=${material[2]}" class="btn btn-success">Update</a></td>
                 </tr>
             </c:forEach>
         </tbody>

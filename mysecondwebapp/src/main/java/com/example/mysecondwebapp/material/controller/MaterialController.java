@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.mysecondwebapp.material.FormWrapper;
+import com.example.mysecondwebapp.material.FormWrapperUpdate;
 import com.example.mysecondwebapp.material.entity.Material;
 import com.example.mysecondwebapp.material.entity.MaterialCategory;
 import com.example.mysecondwebapp.material.entity.MaterialType;
@@ -102,5 +103,60 @@ public class MaterialController {
 	
 		return "redirect:material";
 	}
-
+	
+	@RequestMapping("/delete-material")
+	public String deleteMaterial(@RequestParam("materialId") int id, @RequestParam("category") String category) {
+		int materialCatId = materialCategoryRepository.findByCategory(category).getMaterialCatId();
+		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(id, materialCatId);
+		relMaterialCatRepository.delete(relMaterialCat);
+		return "redirect:material";
+	}
+	
+	@GetMapping("/update-material")
+	public String showUpdateMaterialPage(@RequestParam("materialId") int materialId, @RequestParam("category") String category, ModelMap model) {
+		List<MaterialType> materialTypes = materialTypeRepository.findAll();
+		model.addAttribute("materialTypes",materialTypes);
+		
+		FormWrapperUpdate formWrapperUpdate = new FormWrapperUpdate();
+		Material material = materialRepository.findById(materialId).get();
+		formWrapperUpdate.setMaterial(material);
+		MaterialCategory materialCategory = materialCategoryRepository.findByCategory(category);
+		formWrapperUpdate.setMaterialCategory(materialCategory);
+		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(materialId, materialCategory.getMaterialCatId());
+		formWrapperUpdate.setRelMaterialCat(relMaterialCat);
+		model.addAttribute(formWrapperUpdate);
+		return "updateMaterial";
+	}
+	
+	@PostMapping("/update-material")
+	public String  updateMaterial(ModelMap model, FormWrapperUpdate formWrapperUpdate) {
+		
+		
+//		Material material = formWrapper.getMaterial();
+//		material.setCreatedDate(LocalDate.now());
+//		material.setDeleteFlag(true);
+		Material material = formWrapperUpdate.getMaterial();
+		String category = formWrapperUpdate.getMaterialCategory().getCategory();
+		int materialCatId = materialCategoryRepository.findByCategory(category).getMaterialCatId();
+		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(material.getMaterialId(), materialCatId);
+//		if(relMaterialCat.getRelMaterialCatId() == formWrapperUpdate.getRelMaterialCat().getRelMaterialCatId()) {
+//			return "addMaterial";
+//		}
+		
+		if(relMaterialCat!=null && relMaterialCat.getRelMaterialCatId() != formWrapperUpdate.getRelMaterialCat().getRelMaterialCatId()) {
+			model.addAttribute("errorMessage", "The material with the given category already exists.");
+			
+			List<MaterialType> materialTypes = materialTypeRepository.findAll();
+			model.addAttribute("materialTypes",materialTypes);
+			return "updateMaterial";
+		}
+		
+		
+		materialRepository.save(material);
+					
+	    // Lưu các materialCatId đã chọn vào cơ sở dữ liệu	   	        
+	        formWrapperUpdate.getRelMaterialCat().setMaterialCatId(materialCatId);
+	        relMaterialCatRepository.save(formWrapperUpdate.getRelMaterialCat());	   	
+		return "redirect:material";
+	}
 }

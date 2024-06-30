@@ -6,4 +6,6 @@ import com.example.mysecondwebapp.material.entity.RelMaterialCat;
 
 public interface RelMaterialCatRepository extends JpaRepository<RelMaterialCat, Integer> {
 
+	public RelMaterialCat findByMaterialIdAndMaterialCatId(int materialId, int marialCatId);
+
 }
