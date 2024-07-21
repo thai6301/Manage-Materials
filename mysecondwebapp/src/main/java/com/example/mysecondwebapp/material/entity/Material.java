@@ -2,6 +2,7 @@ package com.example.mysecondwebapp.material.entity;
 
 import java.time.LocalDate;
 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQuery;
 
+//Dev-test
 @Entity
 @NamedQuery(name = "Material.findMaterialDetails",
 query = "SELECT m.materialId, mt.type, mc.category, m.name, m.author, m.description " +
