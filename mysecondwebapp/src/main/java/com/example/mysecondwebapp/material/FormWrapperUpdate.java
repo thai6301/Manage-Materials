@@ -1,12 +1,11 @@
 package com.example.mysecondwebapp.material;
 
 import com.example.mysecondwebapp.material.entity.Material;
-import com.example.mysecondwebapp.material.entity.MaterialCategory;
 import com.example.mysecondwebapp.material.entity.RelMaterialCat;
 
 public class FormWrapperUpdate {
 	private Material material;
-	private MaterialCategory materialCategory;
+	private Integer materialCatIdOfSelectedCategory;
 	private RelMaterialCat relMaterialCat;
 
 	public Material getMaterial() {
@@ -17,12 +16,12 @@ public class FormWrapperUpdate {
 		this.material = material;
 	}
 
-	public MaterialCategory getMaterialCategory() {
-		return materialCategory;
+	public Integer getMaterialCatIdOfSelectedCategory() {
+		return materialCatIdOfSelectedCategory;
 	}
 
-	public void setMaterialCategory(MaterialCategory materialCategory) {
-		this.materialCategory = materialCategory;
+	public void setMaterialCatIdOfSelectedCategory(Integer materialCatIdOfSelectedCategory) {
+		this.materialCatIdOfSelectedCategory = materialCatIdOfSelectedCategory;
 	}
 
 	public RelMaterialCat getRelMaterialCat() {

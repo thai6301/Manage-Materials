@@ -1,5 +1,6 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -54,12 +55,17 @@
                 <div class="col-md-4 form-group">
                     <label for="category">Category</label>
                     <select name="category" id="category" class="form-control">
-                        <option value="0">Select category</option>
-                        <option value="1">Category1</option>
-                        <option value="2">Category2</option>
+                    	<option value="0">Select category</option>
+                    	<c:forEach items = "${materialCategory}" var = "materialCategory">
+							 <option value="${materialCategory.materialCatId}">${materialCategory.category}</option>
+						
+						</c:forEach>
+                        <!-- <option value="0">Select category</option>
+                        <option value="1">Math</option>
+                        <option value="2">Physical</option>
                         <option value="3">Category3</option>
                         <option value="4">Category4</option>
-                        <option value="5">Category5</option>
+                        <option value="5">Category5</option> -->
                     </select>
                 </div>
             </div>

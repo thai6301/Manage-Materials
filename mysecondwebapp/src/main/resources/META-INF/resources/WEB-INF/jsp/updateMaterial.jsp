@@ -110,10 +110,12 @@ body {
 					</form:select>
 				</fieldset>
 				<fieldset>
-					<form:label path="materialCategory.category" class="checkbox-label">Category</form:label>
+					<form:label path="materialCatIdOfSelectedCategory" class="checkbox-label">Category</form:label>
 					<br>
-					<form:checkboxes path="materialCategory.category" class="check"
-						name="checkboxes" items="${category}" delimiter=" " />
+					<c:forEach items = "${materialCategory}" var = "materialCategory">
+							 <form:checkbox  class = "check" path="materialCatIdOfSelectedCategory" value="${materialCategory.materialCatId}"/>${materialCategory.category}
+						
+						</c:forEach>
 				</fieldset>
 				<fieldset>
 					<form:label path="material.name">Name</form:label>

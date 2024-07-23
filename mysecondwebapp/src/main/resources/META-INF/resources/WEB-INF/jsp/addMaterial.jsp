@@ -81,13 +81,8 @@ body {
 				<fieldset>
 					<form:label path="material.typeId">Type</form:label>
 					<form:select path="material.typeId" class="form-select">
-						<%-- <form:option value="1">Type 1</form:option>
-						<form:option value="2">Type 2</form:option>
-						<form:option value="3">Type 3</form:option>
-						<form:option value="4">Type 4</form:option>
-						<form:option value="5">Type 5</form:option> --%>
 						
-						<c:forEach items = "${materialTypes}" var = "materialType">
+						<c:forEach items = "${materialType}" var = "materialType">
 							 <form:option value="${materialType.typeId}">${materialType.type}</form:option>
 						
 						</c:forEach>
@@ -96,8 +91,10 @@ body {
 				<fieldset>
 					<form:label path="selectedCategory" class="checkbox-label">Category</form:label>
 					<br>
-					<form:checkboxes path="selectedCategory" class = "check"
-						items="${category}" delimiter=" " />
+					<c:forEach items = "${materialCategory}" var = "materialCategory">
+							 <form:checkbox path="selectedCategory" value="${materialCategory.materialCatId}"/>${materialCategory.category}
+						
+						</c:forEach>
 				</fieldset>
 				<fieldset>
 					<form:label path="material.name">Name</form:label>

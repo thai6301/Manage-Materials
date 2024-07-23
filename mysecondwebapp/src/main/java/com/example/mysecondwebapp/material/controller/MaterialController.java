@@ -44,6 +44,8 @@ public class MaterialController {
 	public String listAllMaterial(ModelMap model) {
 		
 		List<Object[]> materials = materialRepository.findMaterialDetails();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		model.addAttribute("materialCategory",materialCategory);
         model.addAttribute("materials", materials);
  
 		return "material";
@@ -58,26 +60,28 @@ public class MaterialController {
 	
 	@GetMapping("/add-material")
 	public String  showAddMaterialPage(ModelMap model) {
-		List<MaterialType> materialTypes = materialTypeRepository.findAll();
-		model.addAttribute("materialTypes",materialTypes);
+		List<MaterialType> materialType = materialTypeRepository.findAll();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		model.addAttribute("materialType",materialType);
+		model.addAttribute("materialCategory",materialCategory);
 		model.addAttribute("formWrapper",new FormWrapper());
 		return "addMaterial";
 	}
 	
-	// Annotation 
-    @ModelAttribute("category") 
-  
-    // Method 
-    public List<String> category() 
-    { 
-    	List<MaterialCategory> all = materialCategoryRepository.findAll();
-        List<String> category = new ArrayList<>();
-        for(MaterialCategory addCategory : all) {
-        	category.add(addCategory.getCategory());
-        	
-        }
-        return category; 
-    } 
+//	// Annotation 
+//    @ModelAttribute("category") 
+//  
+//    // Method 
+//    public List<String> category() 
+//    { 
+//    	List<MaterialCategory> all = materialCategoryRepository.findAll();
+//        List<String> category = new ArrayList<>();
+//        for(MaterialCategory addCategory : all) {
+//        	category.add(addCategory.getCategory());
+//        	
+//        }
+//        return category; 
+//    } 
 	
 	@PostMapping("/add-material")
 	public String  addNewMaterialPage(ModelMap model, FormWrapper formWrapper) {
@@ -89,15 +93,13 @@ public class MaterialController {
 		materialRepository.save(material);
 		
 		
-		List<String> selectedCategory = formWrapper.getSelectedCategory();
+		List<Integer> selectedCategory = formWrapper.getSelectedCategory();
 
 	    // Lưu các materialCatId đã chọn vào cơ sở dữ liệu
-	    for (String category : selectedCategory) {
+	    for (Integer materialCatId : selectedCategory) {
 	        RelMaterialCat relMaterialCat = new RelMaterialCat();
 	        relMaterialCat.setMaterialId(material.getMaterialId());
-	        MaterialCategory materialCategory = new MaterialCategory();
-	        materialCategory = materialCategoryRepository.findByCategory(category);
-	        relMaterialCat.setMaterialCatId(materialCategory.getMaterialCatId()); // Chuyển đổi thành kiểu phù hợp
+	        relMaterialCat.setMaterialCatId(materialCatId); // Chuyển đổi thành kiểu phù hợp
 	        relMaterialCatRepository.save(relMaterialCat);
 	    }
 	
@@ -116,13 +118,15 @@ public class MaterialController {
 	public String showUpdateMaterialPage(@RequestParam("materialId") int materialId, @RequestParam("category") String category, ModelMap model) {
 		List<MaterialType> materialTypes = materialTypeRepository.findAll();
 		model.addAttribute("materialTypes",materialTypes);
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		model.addAttribute("materialCategory",materialCategory);
 		
 		FormWrapperUpdate formWrapperUpdate = new FormWrapperUpdate();
 		Material material = materialRepository.findById(materialId).get();
 		formWrapperUpdate.setMaterial(material);
-		MaterialCategory materialCategory = materialCategoryRepository.findByCategory(category);
-		formWrapperUpdate.setMaterialCategory(materialCategory);
-		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(materialId, materialCategory.getMaterialCatId());
+		MaterialCategory materialCategoryUpdate = materialCategoryRepository.findByCategory(category);
+		formWrapperUpdate.setMaterialCatIdOfSelectedCategory(materialCategoryUpdate.getMaterialCatId());
+		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(materialId, materialCategoryUpdate.getMaterialCatId());
 		formWrapperUpdate.setRelMaterialCat(relMaterialCat);
 		model.addAttribute(formWrapperUpdate);
 		return "updateMaterial";
@@ -132,12 +136,9 @@ public class MaterialController {
 	public String  updateMaterial(ModelMap model, FormWrapperUpdate formWrapperUpdate) {
 		
 		
-//		Material material = formWrapper.getMaterial();
-//		material.setCreatedDate(LocalDate.now());
-//		material.setDeleteFlag(true);
+
 		Material material = formWrapperUpdate.getMaterial();
-		String category = formWrapperUpdate.getMaterialCategory().getCategory();
-		int materialCatId = materialCategoryRepository.findByCategory(category).getMaterialCatId();
+		int materialCatId = formWrapperUpdate.getMaterialCatIdOfSelectedCategory();
 		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(material.getMaterialId(), materialCatId);
 //		if(relMaterialCat.getRelMaterialCatId() == formWrapperUpdate.getRelMaterialCat().getRelMaterialCatId()) {
 //			return "addMaterial";
