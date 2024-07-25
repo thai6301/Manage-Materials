@@ -46,7 +46,7 @@ public class MaterialController {
 		List<Object[]> materials = materialRepository.findMaterialDetails();
 		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
 		model.addAttribute("materialCategory",materialCategory);
-        model.addAttribute("materials", materials);
+		model.addAttribute("materials", materials);
  
 		return "material";
 	}
@@ -75,8 +75,6 @@ public class MaterialController {
 		
 		
 		Material material = formWrapper.getMaterial();
-//		material.setCreatedDate(LocalDate.now());
-//		material.setDeleteFlag(true);
 		materialRepository.save(material);
 		
 		
