@@ -5,6 +5,7 @@
 <title>Add New Material</title>
 <link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css"
 	rel="stylesheet">
+<link href="webjars/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" rel="stylesheet" >
 <style>
 body {
 	background-color: #f8f9fa;
@@ -58,17 +59,25 @@ body {
 	background-color: #218838;
 }
 
-/* CSS để tùy chỉnh checkbox */
+/* CSS Äá» tÃ¹y chá»nh checkbox */
 .form-container input[type="checkbox"] {
-	margin-right: 10px; /* Khoảng cách giữa checkbox và label */
+	margin-right: 10px; /* Khoáº£ng cÃ¡ch giá»¯a checkbox vÃ  label */
 	margin-left:5px;
-	transform: scale(1.5); /* Phóng to checkbox */
+	transform: scale(1.5); /* PhÃ³ng to checkbox */
 }
 
 .form-container label.checkbox-label {
 	display: inline-block;
-	margin-bottom: 10px; /* Khoảng cách giữa các checkbox và các fieldset */
+	margin-bottom: 10px; /* Khoáº£ng cÃ¡ch giá»¯a cÃ¡c checkbox vÃ  cÃ¡c fieldset */
 }
+
+.disable-date {
+    pointer-events: none; /* Ngăn người dùng tương tác với input */
+    background-color: #e9ecef;
+    
+}
+
+
 
 </style>
 </head>
@@ -77,7 +86,50 @@ body {
 	<div class="container">
 		<div class="form-container">
 			<h1>Enter Material Details</h1>
-			<form:form method="post" modelAttribute="formWrapper">
+			<form:form method="post" modelAttribute="formWrapper" id = "materialForm">
+				
+				<fieldset>
+					<form:label path="material.author">Author</form:label>
+					<form:input type="text" path="material.author" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.createdDate">Created Date</form:label>
+					<form:input type="text" id="createdDate" path="material.createdDate" readonly="true" class="disable-date" />
+				</fieldset>
+				
+				<fieldset>
+				    <form:label path="material.deleteFlag" class="checkbox-label">Delete Flag</form:label>
+				    <br>
+				    <form:radiobutton path="material.deleteFlag" value="true"/>True
+				    <form:radiobutton path="material.deleteFlag" value="false"/>False
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.firstPublishDate">First Publish Date</form:label>
+					<form:input type="text" id="firstPublishDate" path="material.firstPublishDate" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.name">Name</form:label>
+					<form:input type="text" path="material.name" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.note">Note</form:label>
+					<form:input type="text" path="material.note" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.publisher">Publisher</form:label>
+					<form:input type="text" path="material.publisher" required="required"
+						class="form-control" />
+				</fieldset>
+				
 				<fieldset>
 					<form:label path="material.typeId">Type</form:label>
 					<form:select path="material.typeId" class="form-select">
@@ -94,18 +146,9 @@ body {
 					<c:forEach items = "${materialCategory}" var = "materialCategory">
 							 <form:checkbox path="selectedCategory" value="${materialCategory.materialCatId}"/>${materialCategory.category}
 						
-						</c:forEach>
+					</c:forEach>
 				</fieldset>
-				<fieldset>
-					<form:label path="material.name">Name</form:label>
-					<form:input type="text" path="material.name" required="required"
-						class="form-control" />
-				</fieldset>
-				<fieldset>
-					<form:label path="material.author">Author</form:label>
-					<form:input type="text" path="material.author" required="required"
-						class="form-control" />
-				</fieldset>
+				
 				<fieldset>
 					<form:label path="material.description">Description</form:label>
 					<form:input type="text" path="material.description"
@@ -116,5 +159,29 @@ body {
 		</div>
 	</div>
 </body>
+
+<script src="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
+<script src="webjars/jquery/3.6.0/jquery.min.js"></script>
+<script
+	src="webjars/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+<script type="text/javascript">
+        $(document).ready(function() {
+            $('#materialForm').on('submit', function(event) {
+                var checked = $('input[type="checkbox"]:checked').length;
+                if (checked === 0) {
+                    alert('Please select at least one category.');
+                    event.preventDefault();
+                }
+            });
+            
+            $('#createdDate,#firstPublishDate').datepicker({
+        		format : 'yyyy-mm-dd'
+        		
+        	});
+            $("#createdDate").datepicker("setDate", new Date());
+            
+            
+        });
+    </script>
 
 </html>

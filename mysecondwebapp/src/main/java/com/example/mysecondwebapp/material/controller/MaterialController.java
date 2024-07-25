@@ -68,28 +68,15 @@ public class MaterialController {
 		return "addMaterial";
 	}
 	
-//	// Annotation 
-//    @ModelAttribute("category") 
-//  
-//    // Method 
-//    public List<String> category() 
-//    { 
-//    	List<MaterialCategory> all = materialCategoryRepository.findAll();
-//        List<String> category = new ArrayList<>();
-//        for(MaterialCategory addCategory : all) {
-//        	category.add(addCategory.getCategory());
-//        	
-//        }
-//        return category; 
-//    } 
+
 	
 	@PostMapping("/add-material")
 	public String  addNewMaterialPage(ModelMap model, FormWrapper formWrapper) {
 		
 		
 		Material material = formWrapper.getMaterial();
-		material.setCreatedDate(LocalDate.now());
-		material.setDeleteFlag(true);
+//		material.setCreatedDate(LocalDate.now());
+//		material.setDeleteFlag(true);
 		materialRepository.save(material);
 		
 		
