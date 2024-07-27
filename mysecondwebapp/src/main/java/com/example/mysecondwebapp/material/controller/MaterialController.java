@@ -1,13 +1,13 @@
 package com.example.mysecondwebapp.material.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +22,8 @@ import com.example.mysecondwebapp.material.repository.MaterialCategoryRepository
 import com.example.mysecondwebapp.material.repository.MaterialRepository;
 import com.example.mysecondwebapp.material.repository.MaterialTypeRepository;
 import com.example.mysecondwebapp.material.repository.RelMaterialCatRepository;
+
+
 
 @Controller
 public class MaterialController {
@@ -103,7 +105,8 @@ public class MaterialController {
 	}
 	
 	@GetMapping("/update-material")
-	public String showUpdateMaterialPage(@RequestParam("materialId") int materialId, @RequestParam("category") String category, ModelMap model) {
+	public String showUpdateMaterialPage(@RequestParam(name = "materialId", required = true) Integer materialId, @RequestParam(name = "category", required = true) String category, ModelMap model) {
+		
 		List<MaterialType> materialTypes = materialTypeRepository.findAll();
 		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
 	
@@ -112,14 +115,28 @@ public class MaterialController {
 		formWrapperUpdate.setMaterial(material);
 		MaterialCategory materialCategoryUpdate = materialCategoryRepository.findByCategory(category);
 		formWrapperUpdate.setMaterialCatIdOfSelectedCategory(materialCategoryUpdate.getMaterialCatId());
+		
+		//Xử lý khi relMaterialCat null
 		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(materialId, materialCategoryUpdate.getMaterialCatId());
 		formWrapperUpdate.setRelMaterialCat(relMaterialCat);
+		
+		if(relMaterialCat == null) {
+			model.addAttribute("errorMessage", " Material is not exist");
+		    // Actual exception handling
+		    
+		    List<Object[]> materials = materialRepository.findMaterialDetails();
+			
+			model.addAttribute("materialCategory",materialCategory);
+			model.addAttribute("materials", materials);
+		    return "material";
+		}
 		
 		model.addAttribute("materialTypes",materialTypes);
 		model.addAttribute("materialCategory",materialCategory);
 		model.addAttribute(formWrapperUpdate);
 		return "updateMaterial";
 	}
+
 	
 	@PostMapping("/update-material")
 	public String  updateMaterial(ModelMap model, FormWrapperUpdate formWrapperUpdate) {
@@ -130,9 +147,11 @@ public class MaterialController {
 		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(material.getMaterialId(), materialCatId);	
 		if(relMaterialCat!=null && relMaterialCat.getRelMaterialCatId() != formWrapperUpdate.getRelMaterialCat().getRelMaterialCatId()) {
 			List<MaterialType> materialTypes = materialTypeRepository.findAll();
+			List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
 			
 			model.addAttribute("errorMessage", "The material with the given category already exists.");
 			model.addAttribute("materialTypes",materialTypes);
+			model.addAttribute("materialCategory",materialCategory);
 			return "updateMaterial";
 		}
 		
@@ -148,5 +167,29 @@ public class MaterialController {
 		}
 		
 		return "redirect:material";
+	}
+	
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public String handleMissingParams(MissingServletRequestParameterException ex, Model model) {
+	    
+	    List<Object[]> materials = materialRepository.findMaterialDetails();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		
+		model.addAttribute("errorMessage", " One of parameters is missing");
+		model.addAttribute("materialCategory",materialCategory);
+		model.addAttribute("materials", materials);
+	    return "material";
+	}
+	
+	@ExceptionHandler(NullPointerException.class)
+	public String handleMissingParams(NullPointerException ex, Model model) {
+
+	    List<Object[]> materials = materialRepository.findMaterialDetails();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		
+		model.addAttribute("errorMessage","One of parameters is not found");
+		model.addAttribute("materialCategory",materialCategory);
+		model.addAttribute("materials", materials);
+	    return "material";
 	}
 }

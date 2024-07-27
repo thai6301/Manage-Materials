@@ -40,9 +40,23 @@
     bottom: -30px;
     right: 0;
 }
+.alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+.alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
 </style>
 </head>
 <body>
+<div id="error-message" path = "error-message" class="alert alert-danger" style="display:none;"></div>
 <div class="container mt-5">
     <div class="card p-4">
         <h3 class="mb-4">Search Materials</h3>
@@ -112,6 +126,12 @@
 <script src="webjars/datatables/1.10.25/js/jquery.dataTables.min.js"></script>
 <script>
 $(document).ready(function() {
+
+	var errorMessage = "${errorMessage}";
+    if (errorMessage) {
+        $('#error-message').text(errorMessage).show();
+    }
+	
     var table = $('#materialTable').DataTable({
         "pageLength": 5, // Thiết lập số lượng mục hiển thị trên mỗi trang
         "lengthMenu": [5, 10, 15, 20], // Tùy chọn số lượng mục hiển thị
@@ -142,6 +162,7 @@ $(document).ready(function() {
         $.fn.dataTable.ext.search.pop();
         
     });
+    
 });
 </script>
 </body>
