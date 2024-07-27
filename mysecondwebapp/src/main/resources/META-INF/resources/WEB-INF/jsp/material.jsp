@@ -1,5 +1,6 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -39,9 +40,23 @@
     bottom: -30px;
     right: 0;
 }
+.alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+.alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
 </style>
 </head>
 <body>
+<div id="error-message" path = "error-message" class="alert alert-danger" style="display:none;"></div>
 <div class="container mt-5">
     <div class="card p-4">
         <h3 class="mb-4">Search Materials</h3>
@@ -54,12 +69,17 @@
                 <div class="col-md-4 form-group">
                     <label for="category">Category</label>
                     <select name="category" id="category" class="form-control">
-                        <option value="0">Select category</option>
-                        <option value="1">Category1</option>
-                        <option value="2">Category2</option>
+                    	<option value="0">Select category</option>
+                    	<c:forEach items = "${materialCategory}" var = "materialCategory">
+							 <option value="${materialCategory.materialCatId}">${materialCategory.category}</option>
+						
+						</c:forEach>
+                        <!-- <option value="0">Select category</option>
+                        <option value="1">Math</option>
+                        <option value="2">Physical</option>
                         <option value="3">Category3</option>
                         <option value="4">Category4</option>
-                        <option value="5">Category5</option>
+                        <option value="5">Category5</option> -->
                     </select>
                 </div>
             </div>
@@ -106,6 +126,12 @@
 <script src="webjars/datatables/1.10.25/js/jquery.dataTables.min.js"></script>
 <script>
 $(document).ready(function() {
+
+	var errorMessage = "${errorMessage}";
+    if (errorMessage) {
+        $('#error-message').text(errorMessage).show();
+    }
+	
     var table = $('#materialTable').DataTable({
         "pageLength": 5, // Thiết lập số lượng mục hiển thị trên mỗi trang
         "lengthMenu": [5, 10, 15, 20], // Tùy chọn số lượng mục hiển thị
@@ -136,6 +162,7 @@ $(document).ready(function() {
         $.fn.dataTable.ext.search.pop();
         
     });
+    
 });
 </script>
 </body>

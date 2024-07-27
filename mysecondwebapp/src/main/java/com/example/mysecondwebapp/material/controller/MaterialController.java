@@ -1,13 +1,13 @@
 package com.example.mysecondwebapp.material.controller;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +22,8 @@ import com.example.mysecondwebapp.material.repository.MaterialCategoryRepository
 import com.example.mysecondwebapp.material.repository.MaterialRepository;
 import com.example.mysecondwebapp.material.repository.MaterialTypeRepository;
 import com.example.mysecondwebapp.material.repository.RelMaterialCatRepository;
+
+
 
 @Controller
 public class MaterialController {
@@ -44,7 +46,10 @@ public class MaterialController {
 	public String listAllMaterial(ModelMap model) {
 		
 		List<Object[]> materials = materialRepository.findMaterialDetails();
-        model.addAttribute("materials", materials);
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		
+		model.addAttribute("materialCategory",materialCategory);
+		model.addAttribute("materials", materials);
  
 		return "material";
 	}
@@ -52,52 +57,39 @@ public class MaterialController {
 	@RequestMapping("/material/detail")
 	public String detailsMaterial(@RequestParam int id, ModelMap model) {
 		Material material = materialRepository.findById(id).get();
+		
 		model.addAttribute("material",material);
 		return "materialDetails";
 	}
 	
 	@GetMapping("/add-material")
 	public String  showAddMaterialPage(ModelMap model) {
-		List<MaterialType> materialTypes = materialTypeRepository.findAll();
-		model.addAttribute("materialTypes",materialTypes);
+		List<MaterialType> materialType = materialTypeRepository.findAll();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		
+		model.addAttribute("materialType",materialType);
+		model.addAttribute("materialCategory",materialCategory);
 		model.addAttribute("formWrapper",new FormWrapper());
 		return "addMaterial";
 	}
 	
-	// Annotation 
-    @ModelAttribute("category") 
-  
-    // Method 
-    public List<String> category() 
-    { 
-    	List<MaterialCategory> all = materialCategoryRepository.findAll();
-        List<String> category = new ArrayList<>();
-        for(MaterialCategory addCategory : all) {
-        	category.add(addCategory.getCategory());
-        	
-        }
-        return category; 
-    } 
+
 	
 	@PostMapping("/add-material")
-	public String  addNewMaterialPage(ModelMap model, FormWrapper formWrapper) {
+	public String  addNewMaterialPage(FormWrapper formWrapper) {
 		
 		
 		Material material = formWrapper.getMaterial();
-		material.setCreatedDate(LocalDate.now());
-		material.setDeleteFlag(true);
 		materialRepository.save(material);
 		
 		
-		List<String> selectedCategory = formWrapper.getSelectedCategory();
+		List<Integer> selectedCategory = formWrapper.getSelectedCategory();
 
 	    // Lưu các materialCatId đã chọn vào cơ sở dữ liệu
-	    for (String category : selectedCategory) {
+	    for (Integer materialCatId : selectedCategory) {
 	        RelMaterialCat relMaterialCat = new RelMaterialCat();
 	        relMaterialCat.setMaterialId(material.getMaterialId());
-	        MaterialCategory materialCategory = new MaterialCategory();
-	        materialCategory = materialCategoryRepository.findByCategory(category);
-	        relMaterialCat.setMaterialCatId(materialCategory.getMaterialCatId()); // Chuyển đổi thành kiểu phù hợp
+	        relMaterialCat.setMaterialCatId(materialCatId); // Chuyển đổi thành kiểu phù hợp
 	        relMaterialCatRepository.save(relMaterialCat);
 	    }
 	
@@ -113,50 +105,91 @@ public class MaterialController {
 	}
 	
 	@GetMapping("/update-material")
-	public String showUpdateMaterialPage(@RequestParam("materialId") int materialId, @RequestParam("category") String category, ModelMap model) {
-		List<MaterialType> materialTypes = materialTypeRepository.findAll();
-		model.addAttribute("materialTypes",materialTypes);
+	public String showUpdateMaterialPage(@RequestParam(name = "materialId", required = true) Integer materialId, @RequestParam(name = "category", required = true) String category, ModelMap model) {
 		
+		List<MaterialType> materialTypes = materialTypeRepository.findAll();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+	
 		FormWrapperUpdate formWrapperUpdate = new FormWrapperUpdate();
 		Material material = materialRepository.findById(materialId).get();
 		formWrapperUpdate.setMaterial(material);
-		MaterialCategory materialCategory = materialCategoryRepository.findByCategory(category);
-		formWrapperUpdate.setMaterialCategory(materialCategory);
-		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(materialId, materialCategory.getMaterialCatId());
+		MaterialCategory materialCategoryUpdate = materialCategoryRepository.findByCategory(category);
+		formWrapperUpdate.setMaterialCatIdOfSelectedCategory(materialCategoryUpdate.getMaterialCatId());
+		
+		//Xử lý khi relMaterialCat null
+		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(materialId, materialCategoryUpdate.getMaterialCatId());
 		formWrapperUpdate.setRelMaterialCat(relMaterialCat);
+		
+		if(relMaterialCat == null) {
+			model.addAttribute("errorMessage", " Material is not exist");
+		    // Actual exception handling
+		    
+		    List<Object[]> materials = materialRepository.findMaterialDetails();
+			
+			model.addAttribute("materialCategory",materialCategory);
+			model.addAttribute("materials", materials);
+		    return "material";
+		}
+		
+		model.addAttribute("materialTypes",materialTypes);
+		model.addAttribute("materialCategory",materialCategory);
 		model.addAttribute(formWrapperUpdate);
 		return "updateMaterial";
 	}
+
 	
 	@PostMapping("/update-material")
 	public String  updateMaterial(ModelMap model, FormWrapperUpdate formWrapperUpdate) {
 		
-		
-//		Material material = formWrapper.getMaterial();
-//		material.setCreatedDate(LocalDate.now());
-//		material.setDeleteFlag(true);
 		Material material = formWrapperUpdate.getMaterial();
-		String category = formWrapperUpdate.getMaterialCategory().getCategory();
-		int materialCatId = materialCategoryRepository.findByCategory(category).getMaterialCatId();
-		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(material.getMaterialId(), materialCatId);
-//		if(relMaterialCat.getRelMaterialCatId() == formWrapperUpdate.getRelMaterialCat().getRelMaterialCatId()) {
-//			return "addMaterial";
-//		}
+		int materialCatId = formWrapperUpdate.getMaterialCatIdOfSelectedCategory();
 		
+		RelMaterialCat relMaterialCat = relMaterialCatRepository.findByMaterialIdAndMaterialCatId(material.getMaterialId(), materialCatId);	
 		if(relMaterialCat!=null && relMaterialCat.getRelMaterialCatId() != formWrapperUpdate.getRelMaterialCat().getRelMaterialCatId()) {
-			model.addAttribute("errorMessage", "The material with the given category already exists.");
-			
 			List<MaterialType> materialTypes = materialTypeRepository.findAll();
+			List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+			
+			model.addAttribute("errorMessage", "The material with the given category already exists.");
 			model.addAttribute("materialTypes",materialTypes);
+			model.addAttribute("materialCategory",materialCategory);
 			return "updateMaterial";
 		}
 		
-		
-		materialRepository.save(material);
+		//Kiem tra xem có sự thay đổi nào không
+		if (!material.equals(materialRepository.findById(material.getMaterialId()).get())) {
+			materialRepository.save(material);
+		}
 					
-	    // Lưu các materialCatId đã chọn vào cơ sở dữ liệu	   	        
-	        formWrapperUpdate.getRelMaterialCat().setMaterialCatId(materialCatId);
-	        relMaterialCatRepository.save(formWrapperUpdate.getRelMaterialCat());	   	
+	    // Lưu các materialCatId đã chọn vào cơ sở dữ liệu	   	
+		if (materialCatId != formWrapperUpdate.getRelMaterialCat().getMaterialCatId()) {
+			formWrapperUpdate.getRelMaterialCat().setMaterialCatId(materialCatId);
+			relMaterialCatRepository.save(formWrapperUpdate.getRelMaterialCat());	
+		}
+		
 		return "redirect:material";
+	}
+	
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	public String handleMissingParams(MissingServletRequestParameterException ex, Model model) {
+	    
+	    List<Object[]> materials = materialRepository.findMaterialDetails();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		
+		model.addAttribute("errorMessage", " One of parameters is missing");
+		model.addAttribute("materialCategory",materialCategory);
+		model.addAttribute("materials", materials);
+	    return "material";
+	}
+	
+	@ExceptionHandler(NullPointerException.class)
+	public String handleMissingParams(NullPointerException ex, Model model) {
+
+	    List<Object[]> materials = materialRepository.findMaterialDetails();
+		List<MaterialCategory> materialCategory = materialCategoryRepository.findAll();
+		
+		model.addAttribute("errorMessage","One of parameters is not found");
+		model.addAttribute("materialCategory",materialCategory);
+		model.addAttribute("materials", materials);
+	    return "material";
 	}
 }

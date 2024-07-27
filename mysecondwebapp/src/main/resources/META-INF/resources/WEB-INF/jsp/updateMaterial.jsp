@@ -2,9 +2,10 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <html>
 <head>
-<title>Add New Material</title>
+<title>Update Material</title>
 <link href="webjars/bootstrap/5.1.3/css/bootstrap.min.css"
 	rel="stylesheet">
+<link href="webjars/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css" rel="stylesheet" >
 <style>
 body {
 	background-color: #f8f9fa;
@@ -83,6 +84,11 @@ body {
             background-color: #f8d7da;
             border-color: #f5c6cb;
         }
+
+.readonlyInput {
+		background-color: #e9ecef;
+		pointer-events: none;
+}
 </style>
 </head>
 
@@ -92,51 +98,87 @@ body {
 			<h1>Update Material Details</h1>
 			<div id="error-message" path = "error-message" class="alert alert-danger" style="display:none;"></div>
 			<form:form method="post" modelAttribute="formWrapperUpdate">
+			
 				<fieldset>
 					<form:label path="material.materialId">Material_Id</form:label>
-					<form:input path="material.materialId" readonly="true" />
+					<form:input class = "readonlyInput" path="material.materialId" readonly="true" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.author">Author</form:label>
+					<form:input type="text" path="material.author" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.createdDate">Created Date</form:label>
+					<form:input type="text" id="createdDate" path="material.createdDate" readonly="true" class="disable-date readonlyInput" />
+				</fieldset>
+				
+				<fieldset>
+				    <form:label path="material.deleteFlag" class="checkbox-label">Delete Flag</form:label>
+				    <br>
+				    <form:radiobutton path="material.deleteFlag" value="true"/>True
+				    <form:radiobutton path="material.deleteFlag" value="false"/>False
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.firstPublishDate">First Publish Date</form:label>
+					<form:input type="text" id="firstPublishDate" path="material.firstPublishDate" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.name">Name</form:label>
+					<form:input type="text" path="material.name" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.note">Note</form:label>
+					<form:input type="text" path="material.note" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="material.publisher">Publisher</form:label>
+					<form:input type="text" path="material.publisher" required="required"
+						class="form-control" />
+				</fieldset>
+				
+				<fieldset>
 					<form:label path="material.typeId">Type</form:label>
 					<form:select path="material.typeId" class="form-select">
-						<%-- <form:option value="1">Type 1</form:option>
-						<form:option value="2">Type 2</form:option>
-						<form:option value="3">Type 3</form:option>
-						<form:option value="4">Type 4</form:option>
-						<form:option value="5">Type 5</form:option> --%>
 
 						<c:forEach items="${materialTypes}" var="materialType">
 							<form:option value="${materialType.typeId}">${materialType.type}</form:option>
 
 						</c:forEach>
 					</form:select>
+				
 				</fieldset>
+				
 				<fieldset>
-					<form:label path="materialCategory.category" class="checkbox-label">Category</form:label>
+					<form:label path="material.firstPublishDate">Updated Date</form:label>
+					<form:input type="text" id="updatedDate" path="material.updatedDate" required="required" readonly="true" class="disable-date readonlyInput" />
+				</fieldset>
+				
+				<fieldset>
+					<form:label path="materialCatIdOfSelectedCategory" class="checkbox-label">Category</form:label>
 					<br>
-					<form:checkboxes path="materialCategory.category" class="check"
-						name="checkboxes" items="${category}" delimiter=" " />
+					<c:forEach items = "${materialCategory}" var = "materialCategory">
+							 <form:checkbox  class = "check" path="materialCatIdOfSelectedCategory" value="${materialCategory.materialCatId}"/>${materialCategory.category}
+						
+						</c:forEach>
 				</fieldset>
-				<fieldset>
-					<form:label path="material.name">Name</form:label>
-					<form:input type="text" path="material.name" required="required"
-						class="form-control" />
-				</fieldset>
-				<fieldset>
-					<form:label path="material.author">Author</form:label>
-					<form:input type="text" path="material.author" required="required"
-						class="form-control" />
-				</fieldset>
+				
 				<fieldset>
 					<form:label path="material.description">Description</form:label>
 					<form:input type="text" path="material.description"
 						required="required" class="form-control" />
 				</fieldset>
 				<input type="submit" class="btn btn-success">				
-				<form:input type="hidden" path="material.createdDate" />
-				<form:input type="hidden" path="material.deleteFlag" />
-				<form:input type="hidden" path="material.firstPublishDate" />
-				<form:input type="hidden" path="material.note" />
-				<form:input type="hidden" path="material.publisher" />
-				<form:input type="hidden" path="material.updatedDate" />
+				
 				<form:input type="hidden" path="material.updatedUserId" />
 				<form:input type="hidden" path="relMaterialCat.relMaterialCatId" />
 				<form:input type="hidden" path="relMaterialCat.materialId" />
@@ -148,6 +190,8 @@ body {
 	</div>
 	<script src="webjars/bootstrap/5.1.3/js/bootstrap.min.js"></script>
 	<script src="webjars/jquery/3.6.0/jquery.min.js"></script>
+	<script
+	src="webjars/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 	<script>
 		$(document).ready(function() {
 			$('.check').click(function() {
@@ -159,6 +203,12 @@ body {
             if (errorMessage) {
                 $('#error-message').text(errorMessage).show();
             }
+            $('#updatedDate,#firstPublishDate').datepicker({
+        		format : 'yyyy-mm-dd'
+        		
+        	});
+            $("#updatedDate").datepicker("setDate", new Date());
+            
 		});
 		
 		

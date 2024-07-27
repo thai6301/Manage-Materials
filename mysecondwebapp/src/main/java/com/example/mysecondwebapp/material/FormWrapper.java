@@ -6,7 +6,7 @@ import com.example.mysecondwebapp.material.entity.Material;
 
 public class FormWrapper {
 	private Material material;
-	private List<String> selectedCategory;
+	private List<Integer> selectedCategory;
 
 	public Material getMaterial() {
 		return material;
@@ -16,11 +16,11 @@ public class FormWrapper {
 		this.material = material;
 	}
 
-	public List<String> getSelectedCategory() {
+	public List<Integer> getSelectedCategory() {
 		return selectedCategory;
 	}
 
-	public void setSelectedCategory(List<String> selectedCategory) {
+	public void setSelectedCategory(List<Integer> selectedCategory) {
 		this.selectedCategory = selectedCategory;
 	}
 

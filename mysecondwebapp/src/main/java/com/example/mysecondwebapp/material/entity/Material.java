@@ -1,6 +1,7 @@
 package com.example.mysecondwebapp.material.entity;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQuery;
+
 
 @Entity
 @NamedQuery(name = "Material.findMaterialDetails",
@@ -177,6 +179,29 @@ public class Material {
 				+ ", publisher=" + publisher + ", firstPublishDate=" + firstPublishDate + ", note=" + note
 				+ ", description=" + description + ", createdDate=" + createdDate + ", updatedDate=" + updatedDate
 				+ ", updatedUserId=" + updatedUserId + ", deleteFlag=" + deleteFlag + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(author, createdDate, deleteFlag, description, firstPublishDate, materialId, name, note,
+				publisher, typeId, updatedDate, updatedUserId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Material other = (Material) obj;
+		return Objects.equals(author, other.author) && Objects.equals(createdDate, other.createdDate)
+				&& Objects.equals(deleteFlag, other.deleteFlag) && Objects.equals(description, other.description)
+				&& Objects.equals(firstPublishDate, other.firstPublishDate) && materialId == other.materialId
+				&& Objects.equals(name, other.name) && Objects.equals(note, other.note)
+				&& Objects.equals(publisher, other.publisher) && typeId == other.typeId
+				&& Objects.equals(updatedDate, other.updatedDate) && Objects.equals(updatedUserId, other.updatedUserId);
 	}
 
 	
